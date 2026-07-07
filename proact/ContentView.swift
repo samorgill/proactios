@@ -48,17 +48,29 @@ private struct HomeView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     HeroCard()
-                    AdvisorStrip()
 
-                    SectionHeader(title: "What ProACT helps with", subtitle: "Tax, wills, probate, residency and cross-border planning for people living and working abroad.")
+                    SectionHeader(
+                        title: "What do you need help with?",
+                        subtitle: "Choose the area that best matches your situation."
+                    )
+
+                    QuickHelpGrid()
+
+                    SectionHeader(
+                        title: "Why ProACT?",
+                        subtitle: "Clear expatriate advice across tax, residency, business services, property and estate planning."
+                    )
 
                     VStack(spacing: 12) {
-                        FeatureRow(icon: "globe.europe.africa.fill", title: "International focus", text: "Advice designed around expatriates, cross-border families and overseas assets.")
-                        FeatureRow(icon: "checkmark.seal.fill", title: "Practical guidance", text: "Clear next steps, plain English explanations and support from enquiry to delivery.")
-                        FeatureRow(icon: "person.2.fill", title: "Client-led service", text: "A joined-up team approach across tax, estate planning and ongoing client work.")
+                        FeatureRow(icon: "globe.europe.africa.fill", title: "Cross-border focus", text: "Support for people with income, assets, family or business interests across more than one country.")
+                        FeatureRow(icon: "checkmark.seal.fill", title: "Practical next steps", text: "Plain English guidance on what applies, what to do next and where to avoid costly mistakes.")
+                        FeatureRow(icon: "person.2.fill", title: "Advice from real people", text: "A joined-up team supporting expatriates, business owners and internationally mobile families.")
                     }
                     .frame(maxWidth: .infinity)
+
+                    AdvisorStrip()
                     BottomImageCard()
+                    HomeContactCard()
                 }
                 .padding()
             }
@@ -81,14 +93,8 @@ private struct HeroCard: View {
                 .accessibilityLabel("ProACT Partnership Expatriate Advice")
 
             VStack(alignment: .center, spacing: 8) {
-                Text("25 years of\nExpatriate advice")
-                    .font(.title.bold())
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.82)
-                    .foregroundStyle(ProACTTheme.primary)
 
-                Text("Across borders and down generations.")
+                Text("Living & working abroad. Across borders and down generations.")
                     .font(.subheadline.weight(.medium))
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
@@ -184,13 +190,72 @@ private struct AdvisorImage: View {
     }
 }
 
+private struct QuickHelpGrid: View {
+    private let items = [
+        QuickHelpItem(title: "Tax", icon: "doc.text.fill", text: "Tax registration, tax returns, accounting & reports"),
+        QuickHelpItem(title: "Residency", icon: "person.text.rectangle.fill", text: "Applications,  registrations & renewals"),
+        QuickHelpItem(title: "Business services", icon: "briefcase.fill", text: "Accounts, tax, registered offices and company support"),
+        QuickHelpItem(title: "Wills & probate", icon: "signature", text: "Wills, Estate planning across borders & Probate"),
+        QuickHelpItem(title: "Property", icon: "building.columns.fill", text: "Sales, lettings & commercial investments"),
+        QuickHelpItem(title: "Investments", icon: "building.columns.fill", text: "Joined-up financial guidance")
+    ]
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            ForEach(items) { item in
+                QuickHelpCard(item: item)
+            }
+        }
+    }
+}
+
+private struct QuickHelpCard: View {
+    let item: QuickHelpItem
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Image(systemName: item.icon)
+                .font(.title3)
+                .foregroundStyle(.white)
+                .frame(width: 40, height: 40)
+                .background(ProACTTheme.primary)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            Text(item.title)
+                .font(.headline)
+                .foregroundStyle(ProACTTheme.primary)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text(item.text)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(3)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, minHeight: 150, alignment: .topLeading)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
+    }
+}
+
+private struct QuickHelpItem: Identifiable {
+    let id = UUID()
+    let title: String
+    let icon: String
+    let text: String
+}
+
 private struct ServicesView: View {
     private let services = [
-        Service(title: "Tax Returns", icon: "doc.text.fill", description: "Annual tax return support for individuals living, working or owning assets overseas."),
-        Service(title: "Expat Tax Planning", icon: "chart.pie.fill", description: "Residence, double tax treaty position, overseas income and practical planning."),
-        Service(title: "Wills & Estate Planning", icon: "signature", description: "Guidance for expats with assets, family or estate considerations across countries."),
-        Service(title: "Probate Support", icon: "folder.fill", description: "Support with estate administration where cross-border issues create complexity."),
-        Service(title: "Residency Guidance", icon: "person.text.rectangle.fill", description: "Help understanding residency, registrations and local obligations when moving abroad."),
+        Service(title: "Personal Tax Returns", icon: "doc.text.fill", description: "Annual tax return support for expatriates, overseas landlords and individuals with cross-border income."),
+        Service(title: "Expat Tax Planning", icon: "chart.pie.fill", description: "Residence, double tax treaty position, overseas income and practical tax planning before problems arise."),
+        Service(title: "Business Accounts & Tax", icon: "briefcase.fill", description: "Accounts, tax compliance and practical support for businesses, consultants and company owners."),
+        Service(title: "Cyprus Company Support", icon: "building.2.fill", description: "Registered Cyprus address, company administration and ongoing business compliance support."),
+        Service(title: "Wills, Probate & Estate Planning", icon: "signature", description: "Wills, probate support and estate planning for expats with family, assets or obligations across countries."),
+        Service(title: "Residency Applications", icon: "person.text.rectangle.fill", description: "Support obtaining residency, handling registrations and understanding local obligations when moving abroad."),
         Service(title: "Property & Investments", icon: "building.columns.fill", description: "Joined-up expatriate guidance where property, investment and tax decisions overlap.")
     ]
 
@@ -348,19 +413,21 @@ private struct SectionHeader: View {
     let subtitle: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .center, spacing: 8) {
             Text(title)
                 .font(.title2.bold())
                 .foregroundStyle(ProACTTheme.primary)
+                .multilineTextAlignment(.center)
                 .lineLimit(3)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(subtitle)
                 .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
                 .lineLimit(4)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
@@ -427,6 +494,36 @@ private struct BottomImageCard: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: 24))
         .shadow(color: .black.opacity(0.10), radius: 12, x: 0, y: 6)
+    }
+}
+
+private struct HomeContactCard: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Not sure where to start?")
+                .font(.title3.bold())
+                .foregroundStyle(ProACTTheme.primary)
+
+            Text("Contact ProACT and we will point you towards the right service.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            NavigationLink(destination: ContactView()) {
+                Label("Contact the team", systemImage: "envelope.fill")
+                    .font(.subheadline.bold())
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(ProACTTheme.primary)
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 22))
+        .shadow(color: .black.opacity(0.06), radius: 10, x: 0, y: 5)
     }
 }
 
