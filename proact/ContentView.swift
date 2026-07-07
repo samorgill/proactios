@@ -191,73 +191,13 @@ private struct AdvisorImage: View {
 }
 
 private struct QuickHelpGrid: View {
-    private let items = [
-        QuickHelpItem(title: "Tax", icon: "doc.text.fill", text: "Tax registration, tax returns, accounting & reports"),
-        QuickHelpItem(title: "Residency", icon: "person.text.rectangle.fill", text: "Applications,  registrations & renewals"),
-        QuickHelpItem(title: "Business services", icon: "briefcase.fill", text: "Accounts, tax, registered offices and company support"),
-        QuickHelpItem(title: "Wills & probate", icon: "signature", text: "Wills, Estate planning across borders & Probate"),
-        QuickHelpItem(title: "Property", icon: "building.columns.fill", text: "Sales, lettings & commercial investments"),
-        QuickHelpItem(title: "Investments", icon: "building.columns.fill", text: "Joined-up financial guidance")
-    ]
-
     var body: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-            ForEach(items) { item in
-                QuickHelpCard(item: item)
-            }
-        }
+        ServiceGrid(variant: .compact)
     }
 }
 
-private struct QuickHelpCard: View {
-    let item: QuickHelpItem
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Image(systemName: item.icon)
-                .font(.title3)
-                .foregroundStyle(.white)
-                .frame(width: 40, height: 40)
-                .background(ProACTTheme.primary)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-
-            Text(item.title)
-                .font(.headline)
-                .foregroundStyle(ProACTTheme.primary)
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
-
-            Text(item.text)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(3)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, minHeight: 150, alignment: .topLeading)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
-    }
-}
-
-private struct QuickHelpItem: Identifiable {
-    let id = UUID()
-    let title: String
-    let icon: String
-    let text: String
-}
 
 private struct ServicesView: View {
-    private let services = [
-        Service(title: "Personal Tax Returns", icon: "doc.text.fill", description: "Annual tax return support for expatriates, overseas landlords and individuals with cross-border income."),
-        Service(title: "Expat Tax Planning", icon: "chart.pie.fill", description: "Residence, double tax treaty position, overseas income and practical tax planning before problems arise."),
-        Service(title: "Business Accounts & Tax", icon: "briefcase.fill", description: "Accounts, tax compliance and practical support for businesses, consultants and company owners."),
-        Service(title: "Cyprus Company Support", icon: "building.2.fill", description: "Registered Cyprus address, company administration and ongoing business compliance support."),
-        Service(title: "Wills, Probate & Estate Planning", icon: "signature", description: "Wills, probate support and estate planning for expats with family, assets or obligations across countries."),
-        Service(title: "Residency Applications", icon: "person.text.rectangle.fill", description: "Support obtaining residency, handling registrations and understanding local obligations when moving abroad."),
-        Service(title: "Property & Investments", icon: "building.columns.fill", description: "Joined-up expatriate guidance where property, investment and tax decisions overlap.")
-    ]
 
     var body: some View {
         NavigationStack {
@@ -272,11 +212,7 @@ private struct ServicesView: View {
                     }
                     .padding(.top, 8)
 
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 14) {
-                        ForEach(services) { service in
-                            ServiceCard(service: service)
-                        }
-                    }
+                    ServiceGrid(variant: .detailed)
                 }
                 .padding()
             }
@@ -364,47 +300,162 @@ private struct BlogView: View {
 }
 
 private struct ContactView: View {
+    var selectedService: String? = nil
+
+    @State private var name = ""
+    @State private var email = ""
+    @State private var phone = ""
+    @State private var location = ""
+    @State private var service = "General enquiry"
+    @State private var message = ""
+    @State private var prefersCall = true
+    @State private var showMailError = false
+
+    private let serviceOptions = ["General enquiry"] + ProACTService.all.map(\.title)
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Image("IMG_0100")
-                            .resizable()
-                            .scaledToFill()
-                            .frame(height: 220)
-                            .frame(maxWidth: .infinity)
-                            .clipShape(RoundedRectangle(cornerRadius: 24))
-                            .accessibilityLabel("ProACT adviser")
+                    ContactHeroCard()
 
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Speak to ProACT")
-                                .font(.title.bold())
-                            Text("Get in touch about tax, residency, wills, probate or international planning support.")
+                    VStack(alignment: .leading, spacing: 14) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Send an enquiry")
+                                .font(.title2.bold())
+                                .foregroundStyle(ProACTTheme.primary)
+
+                            Text("Tell us what you need help with and the team will point you towards the right service.")
+                                .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
-                    }
-                    .padding(.bottom, 8)
 
-                    ContactButton(title: "Visit Website", icon: "globe", url: URL(string: "https://proactpartnership.com")!)
-                    ContactButton(title: "Email ProACT", icon: "envelope.fill", url: URL(string: "mailto:info@proactpartnership.com")!)
-                    ContactButton(title: "Book / Buy Services", icon: "cart.fill", url: URL(string: "https://store.proactpartnership.com")!)
+                        VStack(spacing: 12) {
+                            ContactTextField(title: "Name", text: $name, icon: "person.fill", keyboardType: .default)
+                            ContactTextField(title: "Email", text: $email, icon: "envelope.fill", keyboardType: .emailAddress)
+                            ContactTextField(title: "Phone", text: $phone, icon: "phone.fill", keyboardType: .phonePad)
+                            ContactTextField(title: "Where are you based?", text: $location, icon: "mappin.and.ellipse", keyboardType: .default)
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Initial app scope")
-                            .font(.headline)
-                        Text("This version is deliberately light: a clean service overview, simple blog access and quick contact routes.")
-                            .foregroundStyle(.secondary)
+                            VStack(alignment: .leading, spacing: 8) {
+                                Label("Service", systemImage: "briefcase.fill")
+                                    .font(.caption.bold())
+                                    .foregroundStyle(ProACTTheme.primary)
+
+                                Picker("Service", selection: $service) {
+                                    ForEach(serviceOptions, id: \.self) { option in
+                                        Text(option).tag(option)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .padding()
+                            .background(ProACTTheme.secondary)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+
+                            VStack(alignment: .leading, spacing: 8) {
+                                Label("How can we help?", systemImage: "text.bubble.fill")
+                                    .font(.caption.bold())
+                                    .foregroundStyle(ProACTTheme.primary)
+
+                                TextEditor(text: $message)
+                                    .frame(minHeight: 120)
+                                    .scrollContentBackground(.hidden)
+                                    .background(.clear)
+                            }
+                            .padding()
+                            .background(ProACTTheme.secondary)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+
+                            Toggle("I would prefer a call back", isOn: $prefersCall)
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(ProACTTheme.primary)
+                        }
+
+                        Button {
+                            submitEnquiry()
+                        } label: {
+                            Label("Send enquiry", systemImage: "paperplane.fill")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(canSubmit ? ProACTTheme.red : Color.gray.opacity(0.45))
+                                .foregroundStyle(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 14))
+                        }
+                        .disabled(!canSubmit)
                     }
-                    .padding()
+                    .padding(18)
                     .background(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 18))
+                    .clipShape(RoundedRectangle(cornerRadius: 24))
+                    .shadow(color: .black.opacity(0.06), radius: 10, x: 0, y: 5)
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Quick contact")
+                            .font(.headline)
+                            .foregroundStyle(ProACTTheme.primary)
+
+                        ContactButton(title: "Chat with us on WhatsApp", icon: "message.fill", url: URL(string: "https://wa.me/441753260010")!, isPrimary: false)
+                        ContactButton(title: "Visit Website", icon: "globe", url: URL(string: "https://proactpartnership.com")!)
+                        ContactButton(title: "Email ProACT", icon: "envelope.fill", url: URL(string: "mailto:info@proactpartnership.com")!)
+                        ContactButton(title: "Buy Services", icon: "cart.fill", url: URL(string: "https://store.proactpartnership.com")!)
+                    }
+                    .padding(18)
+                    .background(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 24))
+                    .shadow(color: .black.opacity(0.06), radius: 10, x: 0, y: 5)
                 }
                 .padding()
             }
             .background(ProACTTheme.secondary)
             .navigationTitle("Contact")
+            .onAppear {
+                if let selectedService {
+                    service = selectedService
+                }
+            }
+            .alert("Unable to open email", isPresented: $showMailError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Please email info@proactpartnership.com directly or use the website contact route.")
+            }
         }
+    }
+
+    private var canSubmit: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private func submitEnquiry() {
+        let subject = "ProACT App Enquiry - \(service)"
+        let body = """
+        Name: \(name)
+        Email: \(email)
+        Phone: \(phone.isEmpty ? "Not provided" : phone)
+        Location: \(location.isEmpty ? "Not provided" : location)
+        Service: \(service)
+        Preferred contact: \(prefersCall ? "Call back" : "Email")
+
+        Message:
+        \(message)
+        """
+
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = "info@proactpartnership.com"
+        components.queryItems = [
+            URLQueryItem(name: "subject", value: subject),
+            URLQueryItem(name: "body", value: body)
+        ]
+
+        guard let url = components.url, UIApplication.shared.canOpenURL(url) else {
+            showMailError = true
+            return
+        }
+
+        UIApplication.shared.open(url)
     }
 }
 
@@ -527,37 +578,74 @@ private struct HomeContactCard: View {
     }
 }
 
-private struct ServiceCard: View {
-    let service: Service
+private enum ServiceGridVariant {
+    case compact
+    case detailed
+}
+
+private struct ServiceGrid: View {
+    let variant: ServiceGridVariant
+
+    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Image(systemName: service.icon)
-                .font(.title2)
-                .foregroundStyle(.white)
-                .frame(width: 46, height: 46)
-                .background(ProACTTheme.primary)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text(service.title)
-                    .font(.headline)
-                    .foregroundStyle(ProACTTheme.primary)
-                    .lineLimit(2)
-
-                Text(service.description)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(5)
+        LazyVGrid(columns: columns, spacing: variant == .compact ? 12 : 14) {
+            ForEach(ProACTService.all) { service in
+                ServiceCard(service: service, variant: variant)
             }
-
-            Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, minHeight: 190, alignment: .topLeading)
-        .padding(16)
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 22))
-        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
+    }
+}
+
+private struct ServiceCard: View {
+    let service: ProACTService
+    let variant: ServiceGridVariant
+
+    var body: some View {
+        NavigationLink(destination: ContactView(selectedService: service.title)) {
+            VStack(alignment: .leading, spacing: variant == .compact ? 10 : 12) {
+                Image(systemName: service.icon)
+                    .font(variant == .compact ? .title3 : .title2)
+                    .foregroundStyle(.white)
+                    .frame(width: variant == .compact ? 40 : 46, height: variant == .compact ? 40 : 46)
+                    .background(ProACTTheme.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: variant == .compact ? 12 : 14))
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(service.title)
+                        .font(.headline)
+                        .foregroundStyle(ProACTTheme.primary)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text(variant == .compact ? service.summary : service.description)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(variant == .compact ? 3 : 6)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                if variant == .detailed {
+                    Spacer(minLength: 0)
+                }
+
+                HStack(spacing: 6) {
+                    Text("Enquire")
+                        .font(.caption.bold())
+
+                    Image(systemName: "arrow.right")
+                        .font(.caption.bold())
+                }
+                .foregroundStyle(ProACTTheme.red)
+                .padding(.top, 2)
+            }
+            .padding(variant == .compact ? 14 : 16)
+            .frame(maxWidth: .infinity, minHeight: variant == .compact ? 164 : 224, alignment: .topLeading)
+            .background(.white)
+            .clipShape(RoundedRectangle(cornerRadius: variant == .compact ? 20 : 22))
+            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -590,10 +678,59 @@ private struct BlogPostCard: View {
     }
 }
 
+private struct ContactHeroCard: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Image("IMG_0100")
+                .resizable()
+                .scaledToFill()
+                .frame(height: 220)
+                .frame(maxWidth: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: 24))
+                .accessibilityLabel("ProACT adviser")
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Speak to ProACT")
+                    .font(.title.bold())
+                    .foregroundStyle(ProACTTheme.primary)
+
+                Text("Get in touch about tax, residency, business services, wills, probate, property or international planning support.")
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.bottom, 4)
+    }
+}
+
+private struct ContactTextField: View {
+    let title: String
+    @Binding var text: String
+    let icon: String
+    let keyboardType: UIKeyboardType
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(title, systemImage: icon)
+                .font(.caption.bold())
+                .foregroundStyle(ProACTTheme.primary)
+
+            TextField(title, text: $text)
+                .textInputAutocapitalization(keyboardType == .emailAddress ? .never : .words)
+                .keyboardType(keyboardType)
+                .autocorrectionDisabled(keyboardType == .emailAddress)
+        }
+        .padding()
+        .background(ProACTTheme.secondary)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+}
+
 private struct ContactButton: View {
     let title: String
     let icon: String
     let url: URL
+    var isPrimary: Bool = true
 
     var body: some View {
         Link(destination: url) {
@@ -605,18 +742,58 @@ private struct ContactButton: View {
                     .font(.subheadline.bold())
             }
             .padding()
-            .background(ProACTTheme.primary)
+            .background(isPrimary ? ProACTTheme.primary : ProACTTheme.red)
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: 16))
         }
     }
 }
 
-private struct Service: Identifiable {
+private struct ProACTService: Identifiable {
     let id = UUID()
     let title: String
     let icon: String
+    let summary: String
     let description: String
+
+    static let all = [
+        ProACTService(
+            title: "Tax",
+            icon: "doc.text.fill",
+            summary: "Tax registration, tax returns, accounting & reports",
+            description: "Tax registration, annual tax returns, overseas income reporting, accounting support and practical tax reports for expatriates, landlords and cross-border individuals."
+        ),
+        ProACTService(
+            title: "Residency",
+            icon: "person.text.rectangle.fill",
+            summary: "Applications, registrations & renewals",
+            description: "Support with residency applications, registrations, renewals and local obligations when moving to, living in or working from another country."
+        ),
+        ProACTService(
+            title: "Business Services",
+            icon: "briefcase.fill",
+            summary: "Accounts, tax, registered offices and company support",
+            description: "Accounts, business tax, company administration, registered Cyprus office services and ongoing support for consultants, business owners and international companies."
+        ),
+        ProACTService(
+            title: "Wills & Probate",
+            icon: "signature",
+            summary: "Wills, estate planning across borders & probate",
+            description: "Wills, estate planning and probate support for expatriates with family, assets, property or responsibilities across more than one country."
+        ),
+        ProACTService(
+            title: "Property",
+            icon: "building.columns.fill",
+            summary: "Sales, lettings & commercial investments",
+            description: "Guidance around property sales, lettings, overseas landlords, commercial investments and the tax or residency issues that can sit alongside property decisions."
+        ),
+        ProACTService(
+            title: "Investments",
+            icon: "chart.line.uptrend.xyaxis",
+            summary: "Joined-up financial guidance",
+            description: "Joined-up financial guidance for expatriates where investments, pensions, tax residence, property and long-term planning need to be considered together."
+        )
+    ]
 }
 
 private struct BlogPost: Identifiable {
