@@ -8,6 +8,7 @@
 import SwiftUI
 import Foundation
 import Combine
+import WebKit
 
 struct ContentView: View {
     var body: some View {
@@ -265,7 +266,7 @@ private struct BlogView: View {
                     .listRowSeparator(.hidden)
                 } else {
                     ForEach(viewModel.posts) { post in
-                        Link(destination: post.url) {
+                        NavigationLink(destination: BlogDetailView(post: post)) {
                             BlogPostCard(post: post)
                         }
                         .buttonStyle(.plain)
@@ -649,6 +650,7 @@ private struct ServiceCard: View {
     }
 }
 
+
 private struct BlogPostCard: View {
     let post: BlogPost
 
@@ -675,6 +677,46 @@ private struct BlogPostCard: View {
         .padding()
         .background(.white)
         .clipShape(RoundedRectangle(cornerRadius: 18))
+    }
+}
+
+private struct BlogDetailView: View {
+    let post: BlogPost
+
+    var body: some View {
+        WebArticleView(url: post.url)
+            .navigationTitle(post.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Link(destination: post.url) {
+                        Image(systemName: "safari.fill")
+                            .foregroundStyle(ProACTTheme.primary)
+                    }
+                    .accessibilityLabel("Open article in browser")
+                }
+            }
+    }
+}
+
+private struct WebArticleView: UIViewRepresentable {
+    let url: URL
+
+    func makeUIView(context: Context) -> WKWebView {
+        let configuration = WKWebViewConfiguration()
+        configuration.defaultWebpagePreferences.allowsContentJavaScript = true
+
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.allowsBackForwardNavigationGestures = true
+        webView.scrollView.backgroundColor = UIColor(ProACTTheme.secondary)
+        webView.backgroundColor = UIColor(ProACTTheme.secondary)
+        return webView
+    }
+
+    func updateUIView(_ webView: WKWebView, context: Context) {
+        if webView.url != url {
+            webView.load(URLRequest(url: url))
+        }
     }
 }
 
