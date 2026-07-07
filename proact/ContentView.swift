@@ -5,33 +5,46 @@
 //  Created by Sam Orgill on 07/07/2026.
 //
 
+
 import SwiftUI
 import Foundation
 import Combine
 import WebKit
 
+private enum AppTab: Hashable {
+    case home
+    case services
+    case blog
+    case contact
+}
+
 struct ContentView: View {
+    @State private var selectedTab: AppTab = .home
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             HomeView()
                 .tabItem {
                     Label("Home", systemImage: "house.fill")
                 }
+                .tag(AppTab.home)
 
-            ServicesView()
+            ServicesView(selectedTab: $selectedTab)
                 .tabItem {
                     Label("Services", systemImage: "briefcase.fill")
                 }
+                .tag(AppTab.services)
 
             BlogView()
                 .tabItem {
                     Label("Blog", systemImage: "newspaper.fill")
                 }
+                .tag(AppTab.blog)
 
             ContactView()
                 .tabItem {
                     Label("Contact", systemImage: "envelope.fill")
                 }
+                .tag(AppTab.contact)
         }
         .tint(ProACTTheme.primary)
     }
@@ -104,7 +117,7 @@ private struct HeroCard: View {
             }
             .frame(maxWidth: .infinity)
 
-            NavigationLink(destination: ServicesView()) {
+            NavigationLink(destination: ServicesView(selectedTab: .constant(.services))) {
                 Label("View Services", systemImage: "arrow.right.circle.fill")
                     .font(.subheadline.bold())
                     .frame(maxWidth: .infinity)
@@ -199,6 +212,7 @@ private struct QuickHelpGrid: View {
 
 
 private struct ServicesView: View {
+    @Binding var selectedTab: AppTab
 
     var body: some View {
         NavigationStack {
@@ -211,12 +225,68 @@ private struct ServicesView: View {
                     .padding(.top, 8)
 
                     ServiceGrid(variant: .detailed)
+
+                    ServicesContactCard {
+                        selectedTab = .contact
+                    }
                 }
                 .padding()
             }
             .background(ProACTTheme.secondary)
             .navigationTitle("Services")
         }
+    }
+}
+
+private struct ServicesContactCard: View {
+    let action: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ZStack(alignment: .bottomLeading) {
+                Image("IMG_0100")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 210)
+                    .frame(maxWidth: .infinity)
+                    .clipped()
+                    .overlay(
+                        LinearGradient(
+                            colors: [.clear, .black.opacity(0.72)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Need help choosing the right service?")
+                        .font(.title3.bold())
+                        .foregroundStyle(.white)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text("Tell us what you need and the team will point you in the right direction.")
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.9))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(18)
+            }
+
+            Button(action: action) {
+                Label("Contact the team", systemImage: "envelope.fill")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(ProACTTheme.red)
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+            .padding(18)
+            .background(.white)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
+        .padding(.top, 4)
     }
 }
 
