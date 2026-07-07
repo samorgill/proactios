@@ -205,9 +205,6 @@ private struct ServicesView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Our Services")
-                            .font(.largeTitle.bold())
-                            .foregroundStyle(ProACTTheme.primary)
                         Text("Professional support for expatriates, overseas property owners and internationally mobile families.")
                             .foregroundStyle(.secondary)
                     }
@@ -231,9 +228,7 @@ private struct BlogView: View {
             List {
                 Section {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Latest guidance")
-                            .font(.title2.bold())
-                        Text("Articles and updates from the ProACT blog for expatriates, overseas property owners and internationally mobile families.")
+                        Text("The latest expatriate news, views & analysis.")
                             .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 8)
@@ -290,6 +285,16 @@ private struct BlogView: View {
             .listStyle(.plain)
             .background(ProACTTheme.secondary)
             .navigationTitle("Blog")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Link(destination: URL(string: "https://proactpartnership.com/subscribe")!) {
+                        Label("Subscribe", systemImage: "envelope.badge.fill")
+                            .font(.headline)
+                            .foregroundStyle(ProACTTheme.red)
+                    }
+                    .accessibilityLabel("Subscribe to the ProACT newsletter")
+                }
+            }
             .task {
                 viewModel.loadFeed()
             }
